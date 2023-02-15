@@ -85,6 +85,9 @@ async function api(endpoint: string, queryParams: QueryParams[], completeUrl?: s
 }
 
 function addToFavorites(id: number): void {
+   if (isInFavorites(id)) {
+      return;
+   }
    let ids = localStorage.getItem("favorites");
    if (!ids) {
       localStorage.setItem("favorites", "");
@@ -96,6 +99,9 @@ function addToFavorites(id: number): void {
 }
 
 function removeFromFavorites(id: number): void {
+   if (!isInFavorites(id)) {
+      return;
+   }
    const ids = localStorage.getItem("favorites");
    if (ids) {
       const favoritesId = ids.split(";");
@@ -104,4 +110,17 @@ function removeFromFavorites(id: number): void {
    }
 }
 
-export { getByPopularity, getByRate, getUpcoming, getByName }
+function isInFavorites(id: number): boolean {
+   const favorites = localStorage.getItem("favorites");
+   if (!favorites) {
+      return false;
+   }
+   const ids = favorites.split(";");
+   const index = ids.indexOf(id.toString());
+   if (index == -1) {
+      return false;
+   }
+   return true;
+}
+
+export { getByPopularity, getByRate, getUpcoming, getByName, addToFavorites, removeFromFavorites, isInFavorites }

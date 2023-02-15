@@ -1,4 +1,4 @@
-import { getByName, getByPopularity, getByRate, getUpcoming } from "../services/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites } from "../services/movies";
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
@@ -11,7 +11,6 @@ function setMovies(): void {
       if (popular) {
          popular.addEventListener("click", () => {
             createMovies(getByPopularity());
-            //getByPopularity();
          });
       }
       if (upcoming) {
@@ -26,7 +25,7 @@ function setMovies(): void {
       }
       if (btnSubmit && searchInput) {
          btnSubmit.addEventListener("click", (event) => {
-            //event.preventDefault();
+            event.preventDefault();
             if (searchInput.value.length > 1) {
                createMovies(getByName(searchInput.value));
             }
@@ -51,6 +50,27 @@ function createMovies(method: Promise<Movie[]>): void {
                const img = document.createElement("img");
                img.src = movie.poster_path ? "https://image.tmdb.org/t/p/w500/" + movie.poster_path : movie.original_title;
                img.alt = movie.original_title;
+               /*
+               const divIcon = document.createElement("div");
+               divIcon.className = "container position-absolute top-5 end-5";
+               const heartIcon = document.createElement("i");
+               heartIcon.className = "fa-solid fa-heart";
+               const heartEmptyIcon = document.createElement("i");
+               heartEmptyIcon.className = "fa-solid fa-heart";
+               divIcon.appendChild(heartEmptyIcon);
+               */
+               const divEmptyHeart = document.createElement("div");
+               divEmptyHeart.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
+                                class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
+                                <path fill-rule="evenodd"
+                                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" fill-opacity="0" />
+                            </svg>`
+               const divFillHeart = document.createElement("div");
+               divFillHeart.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="red" fill="#ff000078" width="50" height="50"
+                                class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
+                                <path fill-rule="evenodd"
+                                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                            </svg>`
                const svg = document.createElement("svg");
                svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
                svg.setAttribute("stroke", "red");
@@ -77,7 +97,12 @@ function createMovies(method: Promise<Movie[]>): void {
                divBody.appendChild(p);
                divBody.appendChild(div);
                divShadow.appendChild(img);
-               divShadow.appendChild(svg);
+               //divShadow.appendChild(svg);
+               if (isInFavorites(movie.id)) {
+                  divShadow.appendChild(<ChildNode>divFillHeart.firstChild);
+               } else {
+                  divShadow.appendChild(<ChildNode>divEmptyHeart.firstChild);
+               }
                divShadow.appendChild(divBody);
                divCard.appendChild(divShadow);
                container.appendChild(divCard);
