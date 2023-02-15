@@ -53,8 +53,26 @@ function getUpcoming(page?: number): Promise<Movie[]> {
       });
 }
 
-async function api(endpoint: string, queryParams: QueryParams[]): Promise<Movie[]> {
+function getByName(name: string, page?: number): Promise<Movie[]> {
+   const queryParams = baseQueries;
+   queryParams.push({ param: "query", value: name });
+   if (page) {
+      queryParams.push({ param: "page", value: page });
+   }
+   return api("", queryParams, `${baseUrl}/search/movie?`)
+      .then(data => {
+         return data;
+      })
+      .catch(err => {
+         throw err;
+      });
+}
+
+async function api(endpoint: string, queryParams: QueryParams[], completeUrl?: string): Promise<Movie[]> {
    let url = `${baseUrl}/movie/${endpoint}?`; //api_key=${apiKey}&page=${page}`;
+   if (completeUrl) {
+      url = completeUrl;
+   }
    queryParams.forEach(q => {
       url = url.concat(`${q.param}=${q.value}&`)
    });
@@ -66,4 +84,24 @@ async function api(endpoint: string, queryParams: QueryParams[]): Promise<Movie[
    return data.results;
 }
 
-export { getByPopularity, getByRate, getUpcoming }
+function addToFavorites(id: number): void {
+   let ids = localStorage.getItem("favorites");
+   if (!ids) {
+      localStorage.setItem("favorites", "");
+      ids = "";
+   }
+   const favoritesId = ids.split(";");
+   favoritesId.push(`${id}`);
+   localStorage.setItem("favorites", favoritesId.join(";"));
+}
+
+function removeFromFavorites(id: number): void {
+   const ids = localStorage.getItem("favorites");
+   if (ids) {
+      const favoritesId = ids.split(";");
+      favoritesId.splice(favoritesId.indexOf(`${id}`), 1);
+      localStorage.setItem("favorites", favoritesId.join(";"));
+   }
+}
+
+export { getByPopularity, getByRate, getUpcoming, getByName }

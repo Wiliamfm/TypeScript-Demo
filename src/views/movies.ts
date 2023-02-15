@@ -1,4 +1,4 @@
-import { getByPopularity, getByRate, getUpcoming } from "../services/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming } from "../services/movies";
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
@@ -6,6 +6,8 @@ function setMovies(): void {
       const popular = document.getElementById("popular");
       const upcoming = document.getElementById("upcoming");
       const topRated = document.getElementById("top_rated");
+      const btnSubmit = document.getElementById("submit");
+      const searchInput = <HTMLInputElement>document.getElementById("search");
       if (popular) {
          popular.addEventListener("click", () => {
             createMovies(getByPopularity());
@@ -20,6 +22,15 @@ function setMovies(): void {
       if (topRated) {
          topRated.addEventListener("click", () => {
             createMovies(getByRate());
+         });
+      }
+      if (btnSubmit && searchInput) {
+         btnSubmit.addEventListener("click", (event) => {
+            //event.preventDefault();
+            if (searchInput.value.length > 1) {
+               createMovies(getByName(searchInput.value));
+            }
+            searchInput.value = "";
          });
       }
       createMovies(getByPopularity());
@@ -72,7 +83,9 @@ function createMovies(method: Promise<Movie[]>): void {
                container.appendChild(divCard);
             });
          })
-         .catch();
+         .catch(err => {
+            throw err;
+         });
    } else {
       alert("No container?");
    }
