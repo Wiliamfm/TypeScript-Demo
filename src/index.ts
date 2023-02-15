@@ -1,5 +1,5 @@
-import { createMovies } from "./views/movies";
+import { setMovies } from "./views/movies";
 
 export async function render(): Promise<void> {
-    createMovies();
+    setMovies();
 }

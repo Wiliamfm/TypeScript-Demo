@@ -25,7 +25,7 @@ function getByPopularity(page?: number): Promise<Movie[]> {
       });
 }
 
-function getByRate(page: number): Promise<Movie[]> {
+function getByRate(page?: number): Promise<Movie[]> {
    const queryParams = baseQueries;
    if (page) {
       queryParams.push({ param: "page", value: page });
@@ -39,7 +39,7 @@ function getByRate(page: number): Promise<Movie[]> {
       });
 }
 
-function getUpcoming(page: number): Promise<Movie[]> {
+function getUpcoming(page?: number): Promise<Movie[]> {
    const queryParams = baseQueries;
    if (page) {
       queryParams.push({ param: "page", value: page });
