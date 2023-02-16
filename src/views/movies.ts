@@ -1,4 +1,4 @@
-import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites } from "../services/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites } from "../services/movies";
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
@@ -59,18 +59,27 @@ function createMovies(method: Promise<Movie[]>): void {
                heartEmptyIcon.className = "fa-solid fa-heart";
                divIcon.appendChild(heartEmptyIcon);
                */
-               const divEmptyHeart = document.createElement("div");
-               divEmptyHeart.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
+               const divFavIcon = document.createElement("div");
+               if (isInFavorites(movie.id)) {
+                  divFavIcon.innerHTML = `<svg id="${movie.id}" xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
                                 class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
                                 <path fill-rule="evenodd"
                                     d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" fill-opacity="0" />
                             </svg>`
-               const divFillHeart = document.createElement("div");
-               divFillHeart.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="red" fill="#ff000078" width="50" height="50"
+               } else {
+                  divFavIcon.innerHTML = `<svg id="${movie.id}" xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
                                 class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
                                 <path fill-rule="evenodd"
-                                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" fill-opacity="0" fill-opacity="0"/>
                             </svg>`
+               }
+               if (divFavIcon.firstChild) {
+                  divFavIcon.firstChild.addEventListener("click", () => {
+                     const op = addOrRemoveFavorite(movie.id);
+                     console.log(changeFavIcon(movie.id, op));
+                  });
+               }
+               /*
                const svg = document.createElement("svg");
                svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
                svg.setAttribute("stroke", "red");
@@ -83,6 +92,7 @@ function createMovies(method: Promise<Movie[]>): void {
                pathElem.setAttribute("fill-rule", "evenodd");
                pathElem.setAttribute("d", "M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z");
                svg.appendChild(pathElem);
+               */
                const divBody = document.createElement("div");
                divBody.className = "card-body";
                const p = document.createElement("p");
@@ -97,12 +107,7 @@ function createMovies(method: Promise<Movie[]>): void {
                divBody.appendChild(p);
                divBody.appendChild(div);
                divShadow.appendChild(img);
-               //divShadow.appendChild(svg);
-               if (isInFavorites(movie.id)) {
-                  divShadow.appendChild(<ChildNode>divFillHeart.firstChild);
-               } else {
-                  divShadow.appendChild(<ChildNode>divEmptyHeart.firstChild);
-               }
+               divShadow.appendChild(<ChildNode>divFavIcon.firstChild);
                divShadow.appendChild(divBody);
                divCard.appendChild(divShadow);
                container.appendChild(divCard);
@@ -114,6 +119,29 @@ function createMovies(method: Promise<Movie[]>): void {
    } else {
       alert("No container?");
    }
+}
+
+function addOrRemoveFavorite(id: number): string {
+   if (isInFavorites(id)) {
+      removeFromFavorites(id);
+      return "remove";
+   } else {
+      addToFavorites(id);
+      return "add";
+   }
+}
+
+function changeFavIcon(id: number, operation: string): boolean {
+   const svg = document.getElementById(id.toString());
+   if (!svg) {
+      return false;
+   }
+   const pathElem = svg.firstElementChild;
+   if (!pathElem) {
+      return false;
+   }
+   operation === "add" ? pathElem.removeAttribute("fill-opacity") : pathElem.setAttribute("fill-opacity", "0");
+   return true;
 }
 
 export { setMovies };
