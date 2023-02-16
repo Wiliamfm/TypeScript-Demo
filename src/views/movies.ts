@@ -1,4 +1,4 @@
-import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds, getBannerMovie, getByIds, getById } from "../services/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds, getBannerMovie, getById } from "../services/movies";
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
