@@ -123,6 +123,9 @@ function createFavorites(movies: string[]): void {
    }
    container.innerHTML = "";
    movies.forEach(id => {
+      /*
+      if the elem is not in the DOM, favorites tab dont work (do not clone it?);
+      */
       const divCard = document.createElement("div");
       divCard.className = "col-12 p-2";
       const divs = document.getElementsByClassName(`card-${id}`);
