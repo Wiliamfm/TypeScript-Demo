@@ -84,30 +84,31 @@ async function api(endpoint: string, queryParams: QueryParams[], completeUrl?: s
    return data.results;
 }
 
+function getFavoritesIds(): string[] {
+   const favs = localStorage.getItem("favorites");
+   if (!favs) {
+      localStorage.setItem("favorites", "");
+      return [];
+   }
+   return favs.split(";");
+}
+
 function addToFavorites(id: number): void {
    if (isInFavorites(id)) {
       return;
    }
-   let ids = localStorage.getItem("favorites");
-   if (!ids) {
-      localStorage.setItem("favorites", "");
-      ids = "";
-   }
-   const favoritesId = ids.split(";");
-   favoritesId.push(`${id}`);
-   localStorage.setItem("favorites", favoritesId.join(";"));
+   const favorites = getFavoritesIds();
+   favorites.push(id.toString());
+   localStorage.setItem("favorites", favorites.join(";"));
 }
 
 function removeFromFavorites(id: number): void {
    if (!isInFavorites(id)) {
       return;
    }
-   const ids = localStorage.getItem("favorites");
-   if (ids) {
-      const favoritesId = ids.split(";");
-      favoritesId.splice(favoritesId.indexOf(`${id}`), 1);
-      localStorage.setItem("favorites", favoritesId.join(";"));
-   }
+   const favorites = getFavoritesIds();
+   favorites.splice(favorites.indexOf(id.toString()), 1);
+   localStorage.setItem("favorites", favorites.join(";"));
 }
 
 function isInFavorites(id: number): boolean {
@@ -123,4 +124,4 @@ function isInFavorites(id: number): boolean {
    return true;
 }
 
-export { getByPopularity, getByRate, getUpcoming, getByName, addToFavorites, removeFromFavorites, isInFavorites }
+export { getByPopularity, getByRate, getUpcoming, getByName, addToFavorites, removeFromFavorites, isInFavorites, getFavoritesIds }

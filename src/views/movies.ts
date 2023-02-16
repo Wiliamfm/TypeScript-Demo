@@ -1,4 +1,4 @@
-import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites } from "../services/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds } from "../services/movies";
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
@@ -8,6 +8,7 @@ function setMovies(): void {
       const topRated = document.getElementById("top_rated");
       const btnSubmit = document.getElementById("submit");
       const searchInput = <HTMLInputElement>document.getElementById("search");
+      const btnFavorites = document.getElementById("btnFav");
       if (popular) {
          popular.addEventListener("click", () => {
             createMovies(getByPopularity());
@@ -30,6 +31,12 @@ function setMovies(): void {
                createMovies(getByName(searchInput.value));
             }
             searchInput.value = "";
+         });
+      }
+      if (btnFavorites) {
+         btnFavorites.addEventListener("click", () => {
+            const ids = getFavoritesIds();
+            createFavorites(ids);
          });
       }
       createMovies(getByPopularity());
@@ -59,20 +66,20 @@ function createMovies(method: Promise<Movie[]>): void {
 
 function createMovieCard(container: HTMLElement, movie: Movie): void {
    const divShadow = document.createElement("div");
-   divShadow.className = "card shadow-sm";
+   divShadow.className = `card-${movie.id} card shadow-sm`;
    const img = document.createElement("img");
    img.src = movie.poster_path ? "https://image.tmdb.org/t/p/w500/" + movie.poster_path : movie.original_title;
    img.alt = movie.original_title;
    const divFavIcon = document.createElement("div");
    if (isInFavorites(movie.id)) {
-      divFavIcon.innerHTML = `<svg id="${movie.id}" xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
-                                class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
+      divFavIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
+                                class="svg-${movie.id} bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
                                 <path fill-rule="evenodd"
                                     d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
                             </svg>`
    } else {
-      divFavIcon.innerHTML = `<svg id="${movie.id}" xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
-                                class="bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
+      divFavIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" stroke="white" fill="#ff000078" width="50" height="50"
+                                class="svg-${movie.id} bi bi-heart-fill position-absolute p-2" viewBox="0 -2 18 22">
                                 <path fill-rule="evenodd"
                                     d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" fill-opacity="0" fill-opacity="0"/>
                             </svg>`
@@ -102,6 +109,21 @@ function createMovieCard(container: HTMLElement, movie: Movie): void {
    container.appendChild(divShadow);
 }
 
+function createFavorites(movies: string[]): void {
+   const container = document.getElementById("favorite-movies");
+   if (!container) {
+      return;
+   }
+   container.innerHTML = "";
+   movies.forEach(id => {
+      const divCard = document.createElement("div");
+      divCard.className = "col-12 p-2";
+      const divs = document.getElementsByClassName(`card-${id}`);
+      divCard.appendChild(divs[0].cloneNode(true));
+      container.appendChild(divCard);
+   });
+}
+
 function addOrRemoveFavorite(id: number): string {
    if (isInFavorites(id)) {
       removeFromFavorites(id);
@@ -113,15 +135,15 @@ function addOrRemoveFavorite(id: number): string {
 }
 
 function changeFavIcon(id: number, operation: string): boolean {
-   const svg = document.getElementById(id.toString());
-   if (!svg) {
-      return false;
+   //const svg = document.getElementById(id.toString());
+   const svg = document.getElementsByClassName("svg-" + id.toString());
+   for (let i = 0; i < svg.length; i++) {
+      const pathElem = svg.item(i)?.firstElementChild;
+      if (!pathElem) {
+         return false;
+      }
+      operation === "add" ? pathElem.removeAttribute("fill-opacity") : pathElem.setAttribute("fill-opacity", "0");
    }
-   const pathElem = svg.firstElementChild;
-   if (!pathElem) {
-      return false;
-   }
-   operation === "add" ? pathElem.removeAttribute("fill-opacity") : pathElem.setAttribute("fill-opacity", "0");
    return true;
 }
 
