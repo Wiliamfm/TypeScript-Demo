@@ -15,4 +15,10 @@ type Movie = {
    vote_average: number
 }
 
-export { Movie }
+type MovieDetail = {
+   id: number,
+   title: string,
+   overview: string | null;
+}
+
+export { Movie, MovieDetail }

@@ -1,5 +1,5 @@
-import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds } from "../services/movies";
-import { Movie } from "../models/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds, getBannerMovie } from "../services/movies";
+import { Movie, MovieDetail } from "../models/movies";
 
 function setMovies(): void {
    document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +49,13 @@ function createMovies(method: Promise<Movie[]>): void {
       container.innerHTML = "";
       method
          .then(movies => {
+            getBannerMovie(movies)
+               .then(movie => {
+                  createBanner(movie);
+               })
+               .catch(err => {
+                  throw err;
+               });
             movies.forEach(movie => {
                const divCard = document.createElement("div");
                divCard.className = "col-lg-3 col-md-4 col-12 p-2";
@@ -87,7 +94,7 @@ function createMovieCard(container: HTMLElement, movie: Movie): void {
    if (divFavIcon.firstChild) {
       divFavIcon.firstChild.addEventListener("click", () => {
          const op = addOrRemoveFavorite(movie.id);
-         console.log(changeFavIcon(movie.id, op));
+         changeFavIcon(movie.id, op);
       });
    }
    const divBody = document.createElement("div");
@@ -145,6 +152,26 @@ function changeFavIcon(id: number, operation: string): boolean {
       operation === "add" ? pathElem.removeAttribute("fill-opacity") : pathElem.setAttribute("fill-opacity", "0");
    }
    return true;
+}
+
+function createBanner(movie: MovieDetail): void {
+   const container = document.getElementById("random-movie");
+   if (!container) {
+      return;
+   }
+   const divContainer = container.firstElementChild;
+   if (!divContainer) {
+      return;
+   }
+   const divBanner = document.createElement("div");
+   divBanner.className = "jumbotron col-lg-6 col-md-8 mx-auto";
+   const title = document.createElement("h1");
+   title.innerText = movie.title;
+   const content = document.createElement("p");
+   content.textContent = movie.overview;
+   divBanner.appendChild(title);
+   divBanner.appendChild(content);
+   divContainer.appendChild(divBanner);
 }
 
 export { setMovies };
