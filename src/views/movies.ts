@@ -1,5 +1,5 @@
-import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds, getBannerMovie } from "../services/movies";
-import { Movie, MovieDetail } from "../models/movies";
+import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addToFavorites, removeFromFavorites, getFavoritesIds, getBannerMovie, getByIds, getById } from "../services/movies";
+import { Movie } from "../models/movies";
 
 function setMovies(): void {
    document.addEventListener('DOMContentLoaded', () => {
@@ -35,8 +35,7 @@ function setMovies(): void {
       }
       if (btnFavorites) {
          btnFavorites.addEventListener("click", () => {
-            const ids = getFavoritesIds();
-            createFavorites(ids);
+            createFavorites();
          });
       }
       createMovies(getByPopularity());
@@ -116,21 +115,23 @@ function createMovieCard(container: HTMLElement, movie: Movie): void {
    container.appendChild(divShadow);
 }
 
-function createFavorites(movies: string[]): void {
+function createFavorites(): void {
    const container = document.getElementById("favorite-movies");
    if (!container) {
       return;
    }
    container.innerHTML = "";
-   movies.forEach(id => {
-      /*
-      if the elem is not in the DOM, favorites tab dont work (do not clone it?);
-      */
-      const divCard = document.createElement("div");
-      divCard.className = "col-12 p-2";
-      const divs = document.getElementsByClassName(`card-${id}`);
-      divCard.appendChild(divs[0].cloneNode(true));
-      container.appendChild(divCard);
+   getFavoritesIds().forEach(id => {
+      getById(Number(id))
+         .then(movie => {
+            const divCard = document.createElement("div");
+            divCard.className = "col-12 p-2";
+            createMovieCard(divCard, movie);
+            container.appendChild(divCard);
+         })
+         .catch(err => {
+            throw err;
+         });
    });
 }
 
@@ -157,7 +158,7 @@ function changeFavIcon(id: number, operation: string): boolean {
    return true;
 }
 
-function createBanner(movie: MovieDetail): void {
+function createBanner(movie: Movie): void {
    const container = document.getElementById("random-movie");
    if (!container) {
       return;

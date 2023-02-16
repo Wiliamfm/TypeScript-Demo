@@ -15,13 +15,4 @@ type Movie = {
    vote_average: number
 }
 
-type MovieDetail = {
-   adult: boolean,
-   id: number,
-   title: string,
-   original_title: string,
-   overview: string | null;
-   poster_path: string | null,
-}
-
-export { Movie, MovieDetail }
+export { Movie }

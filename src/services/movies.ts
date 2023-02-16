@@ -1,5 +1,5 @@
 import { baseUrl, apiKey } from "../models/common"
-import { Movie, MovieDetail } from "../models/movies";
+import { Movie } from "../models/movies";
 
 type QueryParams = {
    param: string,
@@ -127,9 +127,9 @@ function isInFavorites(id: number): boolean {
    return true;
 }
 
-function getById(id: number): Promise<MovieDetail> {
+function getById(id: number): Promise<Movie> {
    const queryParams = baseQueries;
-   return api<MovieDetail>("", queryParams, `${baseUrl}/movie/${id}?`)
+   return api<Movie>("", queryParams, `${baseUrl}/movie/${id}?`)
       .then(data => {
          return data;
       })
@@ -138,7 +138,22 @@ function getById(id: number): Promise<MovieDetail> {
       });
 }
 
-function getBannerMovie(movies: Movie[]): Promise<MovieDetail> {
+function getByIds(ids: string[]): Movie[] {
+   const movies: Movie[] = [];
+   ids.forEach(id => {
+      getById(Number(id))
+         .then(movie => {
+            return movie;
+            movies.push(movie);
+         })
+         .catch(err => {
+            throw err;
+         });
+   })
+   return movies;
+}
+
+function getBannerMovie(movies: Movie[]): Promise<Movie> {
    /*
    dont work with favorites ids?
    const favsIds = getFavoritesIds();
@@ -160,4 +175,4 @@ function getBannerMovie(movies: Movie[]): Promise<MovieDetail> {
       });
 }
 
-export { getByPopularity, getByRate, getUpcoming, getByName, addToFavorites, removeFromFavorites, isInFavorites, getFavoritesIds, getBannerMovie }
+export { getByPopularity, getByRate, getUpcoming, getByName, addToFavorites, removeFromFavorites, isInFavorites, getFavoritesIds, getBannerMovie, getById, getByIds }
