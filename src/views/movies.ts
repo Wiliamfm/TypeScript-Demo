@@ -2,26 +2,32 @@ import { getByName, getByPopularity, getByRate, getUpcoming, isInFavorites, addT
 import { Movie } from "../models/movies";
 
 function setMovies(): void {
+   sessionStorage.setItem("page", "1");
+   let pageStorage = Number(sessionStorage.getItem("page"));
    document.addEventListener('DOMContentLoaded', () => {
-      const popular = document.getElementById("popular");
-      const upcoming = document.getElementById("upcoming");
-      const topRated = document.getElementById("top_rated");
+      const popular = <HTMLInputElement>document.getElementById("popular");
+      const upcoming = <HTMLInputElement>document.getElementById("upcoming");
+      const topRated = <HTMLInputElement>document.getElementById("top_rated");
       const btnSubmit = document.getElementById("submit");
       const searchInput = <HTMLInputElement>document.getElementById("search");
       const btnFavorites = document.getElementById("btnFav");
+      const btnLoadMora = document.getElementById("load-more");
       if (popular) {
          popular.addEventListener("click", () => {
-            createMovies(getByPopularity());
+            pageStorage = 1;
+            createMovies(getByPopularity(pageStorage));
          });
       }
       if (upcoming) {
          upcoming.addEventListener("click", () => {
-            createMovies(getUpcoming());
+            pageStorage = 1;
+            createMovies(getUpcoming(pageStorage));
          });
       }
       if (topRated) {
          topRated.addEventListener("click", () => {
-            createMovies(getByRate());
+            pageStorage = 1;
+            createMovies(getByRate(pageStorage));
          });
       }
       if (btnSubmit && searchInput) {
@@ -36,6 +42,22 @@ function setMovies(): void {
       if (btnFavorites) {
          btnFavorites.addEventListener("click", () => {
             createFavorites();
+         });
+      }
+      if (btnLoadMora) {
+         btnLoadMora.addEventListener("click", () => {
+            let page = Number(sessionStorage.getItem("page"));
+            page += 1;
+            sessionStorage.setItem("page", page.toString());
+            if (popular.checked) {
+               loadMoreMovies(getByPopularity(page));
+            }
+            if (upcoming.checked) {
+               loadMoreMovies(getUpcoming(page));
+            }
+            if (topRated.checked) {
+               loadMoreMovies(getByRate(page));
+            }
          });
       }
       createMovies(getByPopularity());
@@ -167,6 +189,7 @@ function createBanner(movie: Movie): void {
    if (!divContainer) {
       return;
    }
+   divContainer.innerHTML = "";
    const divBanner = document.createElement("div");
    divBanner.className = "jumbotron col-lg-6 col-md-8 mx-auto";
    const title = document.createElement("h1");
@@ -176,6 +199,26 @@ function createBanner(movie: Movie): void {
    divBanner.appendChild(title);
    divBanner.appendChild(content);
    divContainer.appendChild(divBanner);
+}
+
+function loadMoreMovies(method: Promise<Movie[]>): void {
+   const container = document.getElementById("film-container");
+   if (container) {
+      method
+         .then(movies => {
+            movies.forEach(movie => {
+               const divCard = document.createElement("div");
+               divCard.className = "col-lg-3 col-md-4 col-12 p-2";
+               createMovieCard(divCard, movie);
+               container.appendChild(divCard);
+            });
+         })
+         .catch(err => {
+            throw err;
+         });
+   } else {
+      alert("No container?");
+   }
 }
 
 export { setMovies };
